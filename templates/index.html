@@ -5,6 +5,11 @@
       #error {
         display: none;
       }
+      ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
     </style>
   </head>
   <body>
@@ -15,10 +20,32 @@
     </form>
     <ul id="todos">
       {% for d in data %}
-      <li>{{ d.description }}</li>
+      <li><input class="check-completed" type="checkbox" data-id="{{ d.id }}" {% if d.completed %} checked {% endif %} /> {{ d.description }}</li>
       {% endfor %}
     </ul>
     <script>
+      const checkboxes = document.querySelectorAll('.check-completed')
+      checkboxes.forEach(function(checkbok) {
+        checkbok.onchange = function(e) {
+          const newCompleted = e.target.checked
+          const todoId = e.target.dataset['id']
+          fetch(`/todos/${todoId}/set-completed`, {
+            method: 'POST',
+            body: JSON.stringify({
+              completed: newCompleted
+            }),
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          })
+          .then(function() {
+            document.getElementById('error').className = 'hidden';
+          })
+          .catch(function() {
+            document.getElementById('error').className = '';
+          })
+        }
+      })
       const descInput = document.getElementById('description');
       document.getElementById('form').onsubmit = function(e) {
         e.preventDefault();

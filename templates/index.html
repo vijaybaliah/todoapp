@@ -9,6 +9,19 @@
         list-style: none;
         padding: 0;
         margin: 0;
+        width: 200px;
+      }
+      li {
+        clear: both;
+      } 
+      .delete {
+        -webkit-appearance: none;
+        border: none;
+        outline: none;
+        color: red;
+        float: right;
+        cursor: pointer;
+        font-size: 20px;
       }
     </style>
   </head>
@@ -20,10 +33,32 @@
     </form>
     <ul id="todos">
       {% for d in data %}
-      <li><input class="check-completed" type="checkbox" data-id="{{ d.id }}" {% if d.completed %} checked {% endif %} /> {{ d.description }}</li>
+      <li>
+        <input class="check-completed" type="checkbox" data-id="{{ d.id }}" {% if d.completed %} checked {% endif %} />
+          {{ d.description }}
+        <button class="delete" data-id="{{ d.id }}">&cross;</button>
+      </li>
       {% endfor %}
     </ul>
     <script>
+      const deleteButtons = document.querySelectorAll('.delete')
+      deleteButtons.forEach(function(deleteButton) {
+        deleteButton.onclick = function(e) {
+          const todoId = e.target.dataset['id']
+          fetch(`/todos/${todoId}`, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          })
+          .then(function() {
+            document.getElementById('error').className = 'hidden';
+          })
+          .catch(function() {
+            document.getElementById('error').className = '';
+          })
+        }
+      })
       const checkboxes = document.querySelectorAll('.check-completed')
       checkboxes.forEach(function(checkbok) {
         checkbok.onchange = function(e) {
